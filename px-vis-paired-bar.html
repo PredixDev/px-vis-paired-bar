@@ -1,0 +1,478 @@
+<link rel="import" href="../polymer/polymer-element.html" />
+
+<link rel="import" href="../px-vis/px-vis-behavior-common.html" />
+<link rel="import" href="../px-vis/px-vis-behavior-d3.html" />
+<link rel="import" href="../px-vis/px-vis-behavior-chart.html" />
+<link rel="import" href="../px-vis/px-vis-behavior-scale.html" />
+<link rel="import" href="../px-vis/px-vis-svg.html"/>
+<link rel="import" href="../px-vis/px-vis-axis.html"/>
+<link rel="import" href="../px-vis/px-vis-gridlines.html"/>
+<link rel="import" href="../px-vis/px-vis-register.html"/>
+<link rel="import" href="../px-vis/px-vis-clip-path.html"/>
+<link rel="import" href="../px-vis/px-vis-annotations.html"/>
+<link rel="import" href="../px-vis/px-vis-bar-svg.html"/>
+
+<link rel="import" href="css/px-vis-paired-bar-styles.html" />
+
+<dom-module id="px-vis-paired-bar">
+  <template>
+    <style include="px-vis-paired-bar-styles"></style>
+
+    <div id="wrapper" class$="{{_chartWrapperClass}}" >
+      <!--[chart + navigator] + register-->
+      <div class$="{{_registerWrapperClass}} safari-flex-fix">
+        <!-- <px-vis-register
+          id="register"
+          dynamic-menu-config="[[dynamicMenuConfig]]"
+          chart-width="[[width]]"
+          height="[[_verticalRegisterHeight]]"
+          margin="[[margin]]"
+          class$="{{_getHideClass(hideRegister)}}"
+          units="[[units]]"
+          tooltip-data="[[tooltipData]]"
+          chart-data="[[chartData]]"
+          complete-series-config="[[completeSeriesConfig]]"
+          muted-series="{{mutedSeries}}"
+          type="{{_registerType}}"
+          x-axis-type="[[xAxisType]]"
+          y-axis-type="[[yAxisType]]"
+          inert-register="[[hideRegister]]"
+          current-page="[[_registerCurrentPage]]"
+          total-pages="[[_registerTotalPages]]"
+          display-page-arrows="[[_registerDisplayPageArrows]]"
+          reverse-display-order="[[_getRegisterDisplayOrder(yAxisType)]]">
+        </px-vis-register> -->
+
+        <!-- chart -->
+        <div id="drawingWrapper" class="flex--col flex__item--no-grow inline--flex">
+          <!-- <px-vis-toolbar
+            id="toolbar"
+            current-sub-config='[[toolbarSubConfig]]'
+            action-config='{{actionConfig}}'
+            within-chart
+            chart-margin="[[margin]]"
+            config='{"zoom": true, "pan": true, "tooltip": true}'>
+          </px-vis-toolbar> -->
+          <px-vis-svg
+            id="svgCanvas"
+            class="flex__item--no-grow"
+            width="[[width]]"
+            height="[[height]]"
+            margin="[[margin]]"
+            svg="{{svg}}"
+            px-svg-elem="{{pxSvgElem}}">
+              <px-vis-annotations
+                slot="4"
+                svg="[[svg]]"
+                x="[[x]]"
+                y="[[y]]"
+                margin="[[margin]]"
+                domain-changed="[[_domainChanged]]"
+                complete-series-config="[[completeSeriesConfig]]"
+                annotation-data="[[annotationData]]"
+                show-strong-icon="[[showStrongIcon]]">
+              </px-vis-annotations>
+          </px-vis-svg>
+        </div>
+      </div>
+    </div>
+
+    <px-vis-tooltip
+      id="tooltip"
+      hover-target=[[mouseRect]]
+      mouse-position="[[mousePosition]]"
+      width="250"
+      margin="[[margin]]"
+      chart-data="[[chartData]]"
+      tooltip-data="[[tooltipData]]"
+      complete-series-config="[[completeSeriesConfig]]"
+      x-axis-type="[[xAxisType]]"
+      y-axis-type="[[yAxisType]]"
+      tooltip-style="light"
+      muted-series="[[mutedSeries]]"
+      hide="[[!_computedShowTooltip]]"
+      series-keys="[[_seriesKeys]]">
+    </px-vis-tooltip>
+
+    <px-vis-clip-path
+      svg="[[layer.2]]"
+      width="[[width]]"
+      height="[[height]]"
+      margin="[[margin]]"
+      clip-path="{{clipPath}}"
+      series-clip-path="{{seriesClipPath}}">
+    </px-vis-clip-path>
+
+    <px-vis-bar-svg
+      id="left_bars"
+      svg="[[layer.2]]"
+      complete-series-config="[[completeSeriesConfig]]"
+      chart-data="[[_leftData]]"
+      series-key="[[_leftData.key]]"
+      x="[[_leftX]]"
+      y="[[y]]"
+      type="bar"
+      domain-changed="[[_domainChanged]]"
+      clip-path="[[seriesClipPath]]"
+      highlight-bar="[[_getOrdSet(tooltipData.*)]]">
+    </px-vis-bar-svg>
+    <px-vis-bar-svg
+      id="right_bars"
+      svg="[[layer.2]]"
+      complete-series-config="[[completeSeriesConfig]]"
+      chart-data="[[_rightData]]"
+      series-key="[[_rightData.key]]"
+      x="[[_rightX]]"
+      y="[[y]]"
+      type="bar"
+      domain-changed="[[_domainChanged]]"
+      clip-path="[[seriesClipPath]]"
+      highlight-bar="[[_getOrdSet(tooltipData.*)]]">
+    </px-vis-bar-svg>
+
+
+    <!-- <px-vis-threshold
+      svg="[[layer.3]]"
+      complete-series-config="[[completeSeriesConfig]]"
+      threshold-data="[[thresholdData]]"
+      threshold-config="[[thresholdConfig]]"
+      width="[[width]]"
+      height="[[height]]"
+      margin="[[margin]]"
+      x="[[x]]"
+      y="[[y]]"
+      domain-changed="[[_domainChanged]]"
+      clip-path="[[seriesClipPath]]"
+      show-threshold-box="[[showThresholdBox]]"
+      type="[[_getValueKey(xAxisType)]]"
+      language="[[language]]">
+    </px-vis-threshold> -->
+
+    <px-vis-axis
+      id="xAxisLeft"
+      svg="[[layer.1]]"
+      domain-changed="[[_domainChanged]]"
+      axis="[[_leftX]]"
+      axis-type="[[xAxisType]]"
+      margin="[[margin]]"
+      width="[[width]]"
+      height="[[height]]"
+      orientation="bottom"
+      label-position="after"
+      complete-series-config="[[completeSeriesConfig]]"
+      prevent-series-bar>
+    </px-vis-axis>
+    <px-vis-axis
+      id="xAxisRight"
+      svg="[[layer.1]]"
+      domain-changed="[[_domainChanged]]"
+      axis="[[_rightX]]"
+      axis-type="[[xAxisType]]"
+      margin="[[margin]]"
+      width="[[width]]"
+      height="[[height]]"
+      orientation="bottom"
+      label-position="after"
+      complete-series-config="[[completeSeriesConfig]]"
+      prevent-series-bar>
+    </px-vis-axis>
+    <px-vis-axis
+      id="yAxisLeft"
+      svg="[[layer.1]]"
+      domain-changed="[[_domainChanged]]"
+      axis="[[y]]"
+      axis-type="[[yAxisType]]"
+      margin="[[margin]]"
+      width="[[width]]"
+      height="[[height]]"
+      orientation="left"
+      label-position="center"
+      complete-series-config="[[completeSeriesConfig]]"
+      prevent-series-bar>
+    </px-vis-axis>
+    <px-vis-axis
+      id="yAxisRight"
+      svg="[[layer.1]]"
+      domain-changed="[[_domainChanged]]"
+      axis="[[y]]"
+      axis-type="[[yAxisType]]"
+      margin="[[margin]]"
+      width="[[width]]"
+      height="[[height]]"
+      orientation="right"
+      label-position="center"
+      complete-series-config="[[completeSeriesConfig]]"
+      prevent-series-bar>
+    </px-vis-axis>
+
+    <px-vis-gridlines
+      svg="[[layer.0]]"
+      axis="[[_leftX]]"
+      margin="[[margin]]"
+      length="[[height]]"
+      orientation="bottom"
+      domain-changed="[[_domainChanged]]">
+    </px-vis-gridlines>
+    <px-vis-gridlines
+      svg="[[layer.0]]"
+      axis="[[_rightX]]"
+      margin="[[margin]]"
+      length="[[height]]"
+      orientation="bottom"
+      domain-changed="[[_domainChanged]]">
+    </px-vis-gridlines>
+
+    <px-vis-interaction-space
+      id="interactionSpace"
+      svg="[[layer.4]]"
+      width="[[width]]"
+      height="[[height]]"
+      margin="[[margin]]"
+      x-axis-type="[[xAxisType]]"
+      y-axis-type="[[yAxisType]]"
+      series-keys="[[_seriesKeys]]"
+      complete-series-config="[[completeSeriesConfig]]"
+      chart-data="[[chartData]]"
+      chart-id="[[chartId]]"
+      x="[[x]]"
+      y="[[y]]"
+      domain-changed="[[_domainChanged]]"
+      mouse-rect="{{mouseRect}}"
+      tooltip-data="{{tooltipData}}"
+      crosshair-data="{{crosshairData}}"
+      default-empty-data="[[defaultEmptyData]]"
+      generating-crosshair-data="{{generatingCrosshairData}}"
+      interaction-svg="{{interactionSvg}}"
+      extents-data="{{extentsData}}"
+      action-config="[[actionConfig]]"
+      selection-type="[[selectionType]]"
+      extents-action="{{extentsAction}}"
+      muted-series="[[mutedSeries]]"
+      hard-mute="[[hardMute]]"
+      is-bar
+      prevent-web-worker-synchronization="[[preventWebWorkerSynchronization]]"
+      ww-data-sync-counter="[[wwDataSyncCounter]]">
+    </px-vis-interaction-space>
+  </template>
+
+  <script>
+    const behaviours = [
+      PxVisBehavior.baseSize,
+      PxVisBehavior.margins,
+      PxVisBehavior.dataset,
+      PxVisBehavior.completeSeriesConfig,
+      PxVisBehavior.tooltipData,
+      PxVisBehavior.extentsData,
+      PxVisBehavior.commonMethods,
+      PxVisBehavior.chartExtents,
+      PxVisBehavior.dataExtents,
+      PxVisBehaviorD3.svg,
+      PxVisBehaviorD3.axes,
+      PxVisBehaviorScale.scale,
+      PxVisBehaviorD3.clipPath,
+      PxVisBehaviorChart.saveImage,
+      PxVisBehaviorD3.domainUpdate,
+      PxVisBehaviorChart.subConfiguration,
+      PxVisBehaviorChart.registerConfigs,
+      PxVisBehaviorChart.axisConfigs,
+      PxVisBehaviorChart.registerPositioning,
+      PxVisBehaviorChart.chartAutoResize,
+      PxVisBehavior.thresholds,
+      PxVisBehaviorChart.layers,
+      PxVisBehavior.dynamicMenuConfig,
+      PxColorsBehavior.dataVisColorTheming,
+      PxVisBehavior.axisTypes,
+      PxVisBehavior.actionConfig,
+      PxVisBehaviorChart.actionRequest,
+      PxVisBehaviorChart.showTooltip,
+      // PxVisBehaviorChart.sizeVerticalRegister,
+      PxVisBehaviorChart.thresholdConfig,
+      PxVisBehaviorChart.webWorkerSynchronization,
+      // Polymer.AppLocalizeBehavior,
+      PxVisBehavior.updateStylesOverride,
+      PxVisBehavior.annotationData,
+      PxVisBehaviorChart.tooltipSizing
+    ];
+
+    class PxVisPairedBar extends Polymer.mixinBehaviors(behaviours, Polymer.Element) {
+      static get is() { return 'px-vis-paired-bar'; }
+      static get properties() {
+        return {
+          preventWebWorkerSynchronization: {
+            type: Boolean,
+            value: true,
+            readOnly: true
+          },
+          xAxisType: {
+            type: String,
+            readOnly: true,
+            value: 'linear'
+          },
+          yAxisType: {
+            type: String,
+            readOnly: true,
+            value: 'scaleBand'
+          },
+          _rightX: Function,
+          _leftX: Function,
+          _domainChanged: {
+            type: Boolean,
+            value: null
+          },
+
+          /**
+          * A configuration file to associate series data keys, name, type, and colors.
+          *
+          * Provide two series, one for the left, one for the right.
+          *
+          *```
+          *  {
+          *     "left": {  //seriesKey is a unique identifier for the configuration
+          *         "name": "My Series",  //human readable name
+          *         "x": "male",  //index or key name for dependent variable
+          *         "y": "age",  //index or key name for independent variable
+          *         "xAxisUnit": "People" //Unit to be used for the X axis.
+          *         "hideInRegister": true, //dont show in the register
+          *         "color": "rgb(0,255,0)" //color you want for the series
+          *     },
+          *     "right": {  //seriesKey is a unique identifier for the configuration
+          *         "name": "My Series",  //human readable name
+          *         "x": "female",  //index or key name for dependent variable
+          *         "y": "age",  //index or key name for independent variable
+          *         "xAxisUnit": "People" //Unit to be used for the X axis.
+          *         "hideInRegister": true, //dont show in the register
+          *         "color": "rgb(255,0,0)" //color you want for the series
+          *     }
+          *  }
+          *```
+          */
+          seriesConfig: Object,
+          _seriesKeys: Array,
+          _leftData: Object,
+          _rightData: Object,
+          /**
+          * DO NOT CHANGE THIS UNLESS YOU KNOW WHAT YOU ARE DOING
+          *
+          * Bar charts in nearly all cases should start from 0. If you have a special case and understand the ramifications, change this to false to allow it to use the `min` value from your data
+          */
+          startFromZero: {
+            type: Boolean,
+            value: true
+          },
+        };
+      }
+
+      static get observers() {
+        return [
+          '_setSeriesConfigs(seriesConfig.*, seriesColorList.*)',
+          '_setXScale(width, margin, xAxisType)',
+          '_setYScale(height, margin, yAxisType)',
+          '_setDomain(_chartDataHasChanged, x, y, completeSeriesConfig, chartData.*)',
+          '_setDomain(chartExtents, chartData)',
+          '_setSecondScale(x,domainChanged)',
+          '_createStacks(chartData.*, completeSeriesConfig.*)',
+
+          '_xAxisConfigChanged(xAxisConfig.*)',
+        ];
+      }
+
+      ready() {
+        super.ready();
+        this.set('numberOfLayers', 5);
+      }
+
+      _setSeriesConfigs() {
+        if(!this.seriesConfig || !this.seriesColorList || this.seriesColorList.length === 0) {
+          return;
+        }
+
+        const keys = Object.keys(this.seriesConfig);
+
+        if(keys.length !== 2) {
+          console.error("seriesConfig is malformed and doesnt have the correct number of configurations");
+          return;
+        }
+
+        if(!this.seriesConfig[keys[0]]['x'] ||
+            !this.seriesConfig[keys[0]]['y'] ||
+            !this.seriesConfig[keys[1]]['x'] ||
+            !this.seriesConfig[keys[1]]['y']) {
+          console.error("seriesConfig requires `x` and `y` properties");
+          return;
+        }
+
+        const csc = this.clone(this.seriesConfig, {});
+        const lsc = {};
+        const rsc = {};
+
+        // Assume keys[0] will be on the left and keys[1] will be on the right
+        // if not, swap them
+        if(keys[0] === 'right' || keys[1] === 'left') {
+          const temp = keys[0];
+          keys[0] = keys[1];
+          keys[1] = temp;
+        }
+
+        keys.forEach((key,i) => {
+          csc[key]['name'] = csc[key]['name'] ? csc[key]['name'] : key;
+          csc[key]['color'] = csc[key]['color'] ? csc[key]['color'] : this.seriesColorList[i];
+        });
+
+        this.set('_seriesKeys', keys);
+        this.set('completeSeriesConfig', csc);
+      }
+
+      _setSecondScale() {
+        if(!this.x || this.domainChanged === null) {
+          return;
+        }
+
+        const w = (this.width - this.margin.left - this.margin.right);
+        const w2 = w/2;
+
+        const l = this.x.copy();
+        const r = this.x.copy();
+
+        l.range([w2, 0]);
+        r.range([w2,w]);
+
+        this.set('_leftX', l);
+        this.set('_rightX', r);
+        this.set('_domainChanged', this.domainChanged);
+      }
+
+      _createStacks() {
+        if(this.chartData && this.completeSeriesConfig) {
+          const lStack = Px.d3.stack();
+          const rStack = Px.d3.stack();
+
+          lStack.keys([ this.completeSeriesConfig[this._seriesKeys[0]]['x'] ]);
+          rStack.keys([ this.completeSeriesConfig[this._seriesKeys[1]]['x'] ]);
+
+          this.set('_leftData', lStack(this.chartData)[0]);
+          this.set('_rightData', rStack(this.chartData)[0]);
+        }
+      }
+
+      _xAxisConfigChanged(conf) {
+        if(this.hasUndefinedArguments(arguments)) {
+          return;
+        }
+
+        this._applyConfigToElement(this.xAxisConfig, this.$.xAxisLeft);
+        this._applyConfigToElement(this.xAxisConfig, this.$.xAxisRight);
+      }
+
+      _yAxisConfigChanged(conf) {
+        if(this.hasUndefinedArguments(arguments)) {
+          return;
+        }
+
+        this._applyConfigToElement(this.yAxisConfig, this.$.yAxisLeft);
+        this._applyConfigToElement(this.yAxisConfig, this.$.yAxisRight);
+      }
+
+    }
+    window.customElements.define(PxVisPairedBar.is, PxVisPairedBar);
+  </script>
+</dom-module>

@@ -1,0 +1,40 @@
+{
+  "name": "px-vis-paired-bar",
+  "version": "0.0.1",
+  "main": [
+    "px-vis-paired-bar.html"
+  ],
+  "ignore": [
+    ".*",
+    "npm-debug.log",
+    "gulpfile.js",
+    "sass",
+    "test",
+    "OSS_Notice.pdf",
+    "scripts",
+    ".github",
+    "px-vis-paired-bar.png",
+    "LICENSE.md",
+    "CONTRIBUTING.md",
+    "HISTORY.md",
+    "README.md",
+    ".jshintrc",
+    ".editorconfig",
+    "*.enc"
+  ],
+  "dependencies": {
+    "polymer": "^2.0.0",
+    "px-vis": "^4.6.4"
+  },
+  "devDependencies": {
+    "px-layout-design": "^1.0.0",
+    "px-starter-kit-design": "^1.0.0",
+    "px-demo": "^3.0.0",
+    "px-theme": "^3.0.0",
+    "web-component-tester": "^6.0.0",
+    "iron-ajax": "^2.0.8"
+  },
+  "resolutions": {
+    "webcomponentsjs": "^1.0.0"
+  }
+}

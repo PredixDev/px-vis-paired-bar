@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+      px-vis-paired-bar Demo</title>
+
+    <link rel="import" href="../px-theme/px-theme-styles.html">
+    <!-- <link rel="import" href="../px-dark-theme/px-dark-theme-styles.html"> -->
+    <custom-style>
+      <style include="px-theme-styles" is="custom-style"></style>
+    </custom-style>
+
+    <link rel="import" href="../promise-polyfill/promise-polyfill-lite.html">
+    <link rel="import" href="px-vis-paired-bar.html" />
+    <link rel="import" href="../iron-ajax/iron-ajax.html" />
+  </head>
+
+  <body>
+    <dom-bind>
+      <template id="demo" is="dom-bind">
+        <h3>Demo</h3>
+        <iron-ajax
+          url="/demo/data.json"
+          handle-as="json"
+          last-response="{{data}}" auto>
+        </iron-ajax>
+
+        <div id="wrap">
+          <h2>Paired Bar</h2>
+          <px-vis-paired-bar
+            id="bar"
+            width="1000"
+            height="500"
+            show-tooltip
+            scale-padding="0.1"
+            margin='{
+              "left": 110,
+              "right": 110,
+              "top": 10,
+              "bottom": 50
+            }'
+            chart-data='[[data]]'
+            series-config='{
+              "left": {
+                "x": "male",
+                "y": "age"
+              },
+              "right": {
+                "x": "female",
+                "y": "age"
+              }
+            }'>
+          </px-vis-paired-bar>
+        </div>
+      </template>
+    </dom-bind>
+  </body>
+
+  <script>
+    document.addEventListener('WebComponentsReady', function() {
+      var bar = document.getElementById('bar');
+      var xConfig = {
+        tickFormat: d3.formatPrefix(".1", 1e6),
+        ticks: 5,
+        title: "Population",
+        unit: "M",
+        appendUnitInTitle: true
+      }
+      bar.set('xAxisConfig', xConfig);
+    });
+  </script>
+
+  <script type="text/javascript">
+    (function() {
+      'use strict';
+
+      var onload = function() {
+        // For native Imports, manually fire WebComponentsReady so user code
+        // can use the same code path for native and polyfill'd imports.
+        if (!window.HTMLImports) {
+          document.dispatchEvent(
+            new CustomEvent('WebComponentsReady', {bubbles: true})
+          );
+        }
+      };
+
+      var webComponentsSupported = (
+        'registerElement' in document && 'import' in document.createElement('link') && 'content' in document.createElement('template')
+      );
+
+      if (!webComponentsSupported) {
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = '../webcomponentsjs/webcomponents-lite.js';
+        script.onload = onload;
+        document.head.appendChild(script);
+      } else {
+        onload();
+      }
+    })();
+  </script>
+
+</html>

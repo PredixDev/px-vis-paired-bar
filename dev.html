@@ -31,23 +31,28 @@
           <h2>Paired Bar</h2>
           <px-vis-paired-bar
             id="bar"
-            width="1000"
+            width="1200"
             height="500"
             show-tooltip
             scale-padding="0.1"
             margin='{
-              "left": 110,
-              "right": 110,
+              "left": 130,
+              "right": 130,
               "top": 10,
               "bottom": 50
             }'
             chart-data='[[data]]'
+            y-axis-config='{
+              "title": "Age"
+            }'
             series-config='{
               "left": {
+                "name": "Male",
                 "x": "male",
                 "y": "age"
               },
               "right": {
+                "name": "Female",
                 "x": "female",
                 "y": "age"
               }

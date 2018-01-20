@@ -7,6 +7,7 @@
 <link rel="import" href="../px-vis/px-vis-svg.html"/>
 <link rel="import" href="../px-vis/px-vis-axis.html"/>
 <link rel="import" href="../px-vis/px-vis-gridlines.html"/>
+<link rel="import" href="../px-vis/px-vis-interaction-space.html"/>
 <link rel="import" href="../px-vis/px-vis-register.html"/>
 <link rel="import" href="../px-vis/px-vis-clip-path.html"/>
 <link rel="import" href="../px-vis/px-vis-annotations.html"/>
@@ -21,7 +22,7 @@
     <div id="wrapper" class$="{{_chartWrapperClass}}" >
       <!--[chart + navigator] + register-->
       <div class$="{{_registerWrapperClass}} safari-flex-fix">
-        <!-- <px-vis-register
+        <px-vis-register
           id="register"
           dynamic-menu-config="[[dynamicMenuConfig]]"
           chart-width="[[width]]"
@@ -40,8 +41,8 @@
           current-page="[[_registerCurrentPage]]"
           total-pages="[[_registerTotalPages]]"
           display-page-arrows="[[_registerDisplayPageArrows]]"
-          reverse-display-order="[[_getRegisterDisplayOrder(yAxisType)]]">
-        </px-vis-register> -->
+          reverse-display-order>
+        </px-vis-register>
 
         <!-- chart -->
         <div id="drawingWrapper" class="flex--col flex__item--no-grow inline--flex">
@@ -371,8 +372,10 @@
           '_setDomain(chartExtents, chartData)',
           '_setSecondScale(x,domainChanged)',
           '_createStacks(chartData.*, completeSeriesConfig.*)',
+          '_formatTooltipData(tooltipData.*)',
 
           '_xAxisConfigChanged(xAxisConfig.*)',
+          '_yAxisConfigChanged(yAxisConfig.*)'
         ];
       }
 
@@ -454,6 +457,10 @@
         }
       }
 
+      _formatTooltipData() {
+
+      }
+
       _xAxisConfigChanged(conf) {
         if(this.hasUndefinedArguments(arguments)) {
           return;
@@ -461,6 +468,16 @@
 
         this._applyConfigToElement(this.xAxisConfig, this.$.xAxisLeft);
         this._applyConfigToElement(this.xAxisConfig, this.$.xAxisRight);
+
+        // fix title location
+        if(this.xAxisConfig.title) {
+          this.$.xAxisLeft.title = '';
+          const translate = this.xAxisConfig.titleOffset ? this.xAxisConfig.titleOffset : [0,0];
+          const w = (this.width - this.margin.left - this.margin.right);
+
+          translate[0] += w/4;
+          this.$.xAxisRight.set('titleOffset', translate);
+        }
       }
 
       _yAxisConfigChanged(conf) {

@@ -12,6 +12,9 @@
 <link rel="import" href="../px-vis/px-vis-clip-path.html"/>
 <link rel="import" href="../px-vis/px-vis-annotations.html"/>
 <link rel="import" href="../px-vis/px-vis-bar-svg.html"/>
+<link rel="import" href="../px-vis/px-vis-threshold.html"/>
+<link rel="import" href="../px-vis/px-vis-reference-curve.html"/>
+<link rel="import" href="../px-vis/px-vis-tooltip.html" />
 
 <link rel="import" href="css/px-vis-paired-bar-styles.html" />
 
@@ -20,7 +23,7 @@
     <style include="px-vis-paired-bar-styles"></style>
 
     <div id="wrapper" class$="{{_chartWrapperClass}}" >
-      <!--[chart + navigator] + register-->
+      <!--chart + register-->
       <div class$="{{_registerWrapperClass}} safari-flex-fix">
         <px-vis-register
           id="register"
@@ -42,19 +45,20 @@
           total-pages="[[_registerTotalPages]]"
           display-page-arrows="[[_registerDisplayPageArrows]]"
           display-ordinal-value
-          display-x-values-only>
+          display-x-values-only
+          disable-click>
         </px-vis-register>
 
         <!-- chart -->
         <div id="drawingWrapper" class="flex--col flex__item--no-grow inline--flex">
-          <!-- <px-vis-toolbar
+          <px-vis-toolbar
             id="toolbar"
             current-sub-config='[[toolbarSubConfig]]'
             action-config='{{actionConfig}}'
             within-chart
             chart-margin="[[margin]]"
             config='{"zoom": true, "pan": true, "tooltip": true}'>
-          </px-vis-toolbar> -->
+          </px-vis-toolbar>
           <px-vis-svg
             id="svgCanvas"
             class="flex__item--no-grow"
@@ -81,7 +85,8 @@
 
     <px-vis-tooltip
       id="tooltip"
-      hover-target=[[mouseRect]]
+      orientation="top"
+      hover-target="[[mouseRect]]"
       mouse-position="[[mousePosition]]"
       width="250"
       margin="[[margin]]"
@@ -132,23 +137,36 @@
       highlight-bar="[[_getOrdSet(tooltipData.*)]]">
     </px-vis-bar-svg>
 
-
-    <!-- <px-vis-threshold
+    <px-vis-threshold
       svg="[[layer.3]]"
       complete-series-config="[[completeSeriesConfig]]"
       threshold-data="[[thresholdData]]"
       threshold-config="[[thresholdConfig]]"
-      width="[[width]]"
       height="[[height]]"
       margin="[[margin]]"
-      x="[[x]]"
+      x="[[_leftX]]"
       y="[[y]]"
       domain-changed="[[_domainChanged]]"
       clip-path="[[seriesClipPath]]"
       show-threshold-box="[[showThresholdBox]]"
-      type="[[_getValueKey(xAxisType)]]"
+      type="x"
       language="[[language]]">
-    </px-vis-threshold> -->
+    </px-vis-threshold>
+    <px-vis-threshold
+      svg="[[layer.3]]"
+      complete-series-config="[[completeSeriesConfig]]"
+      threshold-data="[[thresholdData]]"
+      threshold-config="[[thresholdConfig]]"
+      height="[[height]]"
+      margin="[[margin]]"
+      x="[[_rightX]]"
+      y="[[y]]"
+      domain-changed="[[_domainChanged]]"
+      clip-path="[[seriesClipPath]]"
+      show-threshold-box="[[showThresholdBox]]"
+      type="x"
+      language="[[language]]">
+    </px-vis-threshold>
 
     <px-vis-axis
       id="xAxisLeft"
@@ -255,6 +273,29 @@
       prevent-web-worker-synchronization="[[preventWebWorkerSynchronization]]"
       ww-data-sync-counter="[[wwDataSyncCounter]]">
     </px-vis-interaction-space>
+
+    <px-vis-reference-curve
+      id="referenceCurve"
+      svg="[[layer.3]]"
+      x="[[_leftX]]"
+      y="[[y]]"
+      domain-changed="[[_domainChanged]]"
+      reference-config="[[leftReferenceConfig]]"
+      reference-data="[[referenceData]]"
+      clip-path="[[seriesClipPath]]">
+    </px-vis-reference-curve>
+    <px-vis-reference-curve
+      id="referenceCurve"
+      svg="[[layer.3]]"
+      x="[[_rightX]]"
+      y="[[y]]"
+      reverse-data
+      domain-changed="[[_domainChanged]]"
+      reference-config="[[rightReferenceConfig]]"
+      reference-data="[[referenceData]]"
+      clip-path="[[seriesClipPath]]">
+    </px-vis-reference-curve>
+
   </template>
 
   <script>
@@ -361,6 +402,31 @@
             type: Boolean,
             value: true
           },
+          /**
+          * A configuration object needed to draw reference curves. Format is similar to seriesConfig. Valid entries:
+          * - `x` : default: 'x'
+          * - `y`: default: 'y'
+          * - `interpolationFunction` : default: Px.d3.curveCardinal
+          * - `color` :
+          * - `strokeWidth` default: 1
+          *
+          */
+          rightReferenceConfig: Object,
+          /**
+          * A configuration object needed to draw reference curves. Format is similar to seriesConfig. Valid entries:
+          * - `x` : default: 'x'
+          * - `y`: default: 'y'
+          * - `interpolationFunction` : default: Px.d3.curveCardinal
+          * - `color` :
+          * - `strokeWidth` default: 1
+          *
+          */
+          leftReferenceConfig: Object,
+          /**
+          * Data to create reference curves. Format matches chartData and requires a referenceConfig with similar props to seriesConfig. Supply data for both left and right in this array
+          *
+          */
+          referenceData: Array
         };
       }
 
@@ -438,6 +504,9 @@
 
         l.range([w2, 0]);
         r.range([w2,w]);
+
+        l._scaleType = 'linear';
+        r._scaleType = 'linear';
 
         this.set('_leftX', l);
         this.set('_rightX', r);

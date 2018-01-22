@@ -35,6 +35,9 @@
             height="500"
             show-tooltip
             scale-padding="0.1"
+            threshold-data='[
+              {"type":"Too many", "value":9000000 }
+            ]'
             margin='{
               "left": 130,
               "right": 130,
@@ -56,7 +59,22 @@
                 "x": "female",
                 "y": "age"
               }
-            }'>
+            }'
+            right-reference-config='{
+              "left": {
+                "name": "So many men",
+                "y":"age",
+                "x": "male"
+              }
+            }'
+            left-reference-config='{
+              "right": {
+                "name": "So many women",
+                "y":"age",
+                "x": "female"
+              }
+            }'
+            reference-data='[[data]]'>>
           </px-vis-paired-bar>
         </div>
       </template>

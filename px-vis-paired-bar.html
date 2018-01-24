@@ -60,7 +60,7 @@
             config='{"zoom": true, "pan": true, "tooltip": true}'>
           </px-vis-toolbar>
           <px-vis-svg
-            id="svgCanvas"
+            id="svg"
             class="flex__item--no-grow"
             width="[[width]]"
             height="[[height]]"
@@ -98,7 +98,9 @@
       tooltip-style="light"
       muted-series="[[mutedSeries]]"
       hide="[[!_computedShowTooltip]]"
-      series-keys="[[_seriesKeys]]">
+      series-keys="[[_seriesKeys]]"
+      display-ordinal-value
+      display-x-values-only>
     </px-vis-tooltip>
 
     <px-vis-clip-path
@@ -328,7 +330,7 @@
       PxVisBehavior.actionConfig,
       PxVisBehaviorChart.actionRequest,
       PxVisBehaviorChart.showTooltip,
-      // PxVisBehaviorChart.sizeVerticalRegister,
+      PxVisBehaviorChart.sizeVerticalRegister,
       PxVisBehaviorChart.thresholdConfig,
       PxVisBehaviorChart.webWorkerSynchronization,
       // Polymer.AppLocalizeBehavior,
@@ -439,6 +441,7 @@
           '_setDomain(chartExtents, chartData)',
           '_setSecondScale(x,domainChanged)',
           '_createStacks(chartData.*, completeSeriesConfig.*)',
+          '_calcTooltipPos(tooltipData.*)',
 
           '_xAxisConfigChanged(xAxisConfig.*)',
           '_yAxisConfigChanged(yAxisConfig.*)'
@@ -448,6 +451,51 @@
       ready() {
         super.ready();
         this.set('numberOfLayers', 5);
+        this.set('_verticalRegisterDrawingCanvasId', 'svg');
+        this.addEventListener('iron-resize', this._onIronResize.bind(this));
+      }
+
+      _debounce(name, cb, time) {
+        this[name] = Polymer.Debouncer.debounce(
+          this[name],
+          Polymer.Async.timeOut.after(time),
+          cb.bind(this));
+      }
+
+      _onIronResize() {
+        if(this.preventResize) {
+          return;
+        }
+
+        this._debounce('ironresize', this._onIronResizeDebounced, this.debounceResizeTiming);
+      }
+
+      _onIronResizeDebounced() {
+        //make sure we are not preventing resize in case it changed while debouncing
+        if(this.preventResize) {
+          return;
+        }
+
+        requestAnimationFrame(() => {
+          var wrapperRect = this.$.wrapper.getBoundingClientRect(),
+              registerRect = this.$.register.getBoundingClientRect(),
+              toolbarRect = this.$.toolbar.getBoundingClientRect(),
+              heightDeduct = 0,
+              widthDeduct = 0;
+
+
+          if(this.$.register.type === 'horizontal') {
+            heightDeduct += registerRect.height;
+          } else {
+            widthDeduct += registerRect.width;
+          }
+
+          heightDeduct += toolbarRect.height;
+
+          this.set('width', Math.max(wrapperRect.width - widthDeduct, 0));
+          this.set('height', Math.max(wrapperRect.height - heightDeduct, 0));
+          this._computeVerticalRegisterHeight([toolbarRect.height]);
+        });
       }
 
       _setSeriesConfigs() {
@@ -532,6 +580,23 @@
         }
 
         return '';
+      }
+
+      _calcTooltipPos() {
+        if(this.showTooltip && this.tooltipData && this.tooltipData.series && this.tooltipData.series.length && this.tooltipData.series[0].coord) {
+          if(!this._svgClientRect) {
+            this._getImmediateSizing();
+          }
+
+          //calc the screen positions for the tooltip
+          let screenX = this._svgClientRect.left + this._winX + this.margin.left;
+          let screenY = this.margin.top + this._svgClientRect.top + this._winY;
+
+          screenX += this._rightX(0);
+          screenY += this.y(this.tooltipData.ordinalSet);
+
+          this.set('mousePosition', [screenX, screenY]);
+        }
       }
 
       _xAxisConfigChanged(conf) {

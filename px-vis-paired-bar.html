@@ -478,12 +478,11 @@
         }
 
         requestAnimationFrame(() => {
-          var wrapperRect = this.$.wrapper.getBoundingClientRect(),
-              registerRect = this.$.register.getBoundingClientRect(),
-              toolbarRect = this.$.toolbar.getBoundingClientRect(),
-              heightDeduct = 0,
-              widthDeduct = 0;
-
+          const wrapperRect = this.$.wrapper.getBoundingClientRect();
+          const registerRect = this.$.register.getBoundingClientRect();
+          const toolbarRect = this.$.toolbar.getBoundingClientRect();
+          let heightDeduct = 0;
+          let widthDeduct = 0;
 
           if(this.$.register.type === 'horizontal') {
             heightDeduct += registerRect.height;
@@ -603,6 +602,7 @@
       _fixTitleLocation() {
         if(this.xAxisConfig && this.xAxisConfig.title) {
           this.$.xAxisLeft.title = '';
+          this.$.xAxisLeft.unit = '';
           const translate = this.xAxisConfig.titleOffset ? this.xAxisConfig.titleOffset : [0,0];
           const w = (this.width - this.margin.left - this.margin.right);
 

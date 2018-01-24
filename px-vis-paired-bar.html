@@ -442,6 +442,7 @@
           '_setSecondScale(x,domainChanged)',
           '_createStacks(chartData.*, completeSeriesConfig.*)',
           '_calcTooltipPos(tooltipData.*)',
+          '_fixTitleLocation(width, margin.*)',
 
           '_xAxisConfigChanged(xAxisConfig.*)',
           '_yAxisConfigChanged(yAxisConfig.*)'
@@ -599,6 +600,17 @@
         }
       }
 
+      _fixTitleLocation() {
+        if(this.xAxisConfig && this.xAxisConfig.title) {
+          this.$.xAxisLeft.title = '';
+          const translate = this.xAxisConfig.titleOffset ? this.xAxisConfig.titleOffset : [0,0];
+          const w = (this.width - this.margin.left - this.margin.right);
+
+          translate[0] += w/4;
+          this.$.xAxisRight.set('titleOffset', translate);
+        }
+      }
+
       _xAxisConfigChanged(conf) {
         if(this.hasUndefinedArguments(arguments)) {
           return;
@@ -608,14 +620,7 @@
         this._applyConfigToElement(this.xAxisConfig, this.$.xAxisRight);
 
         // fix title location
-        if(this.xAxisConfig.title) {
-          this.$.xAxisLeft.title = '';
-          const translate = this.xAxisConfig.titleOffset ? this.xAxisConfig.titleOffset : [0,0];
-          const w = (this.width - this.margin.left - this.margin.right);
-
-          translate[0] += w/4;
-          this.$.xAxisRight.set('titleOffset', translate);
-        }
+        this._fixTitleLocation();
       }
 
       _yAxisConfigChanged(conf) {

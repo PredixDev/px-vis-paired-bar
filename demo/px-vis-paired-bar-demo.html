@@ -76,7 +76,14 @@
     </px-demo-interactive>
 
     <!-- API Viewer -->
-    <px-demo-api-viewer source="px-vis-paired-bar" api-source-file-path="px-vis-paired-bar-api.json"></px-demo-api-viewer>
+    <px-demo-api-viewer
+      source="px-vis-paired-bar"
+      hide="[[apiHide]]"
+      mark-private="[[apiMarkPrivate]]"
+      mark-read-only="[[apliMarkReadOnly]]"
+      change-description="[[apiChangeDescription]]"
+      api-source-file-path="px-vis-paired-bar-api.json">
+    </px-demo-api-viewer>
 
     <!-- Footer -->
     <px-demo-footer></px-demo-footer>
@@ -217,6 +224,62 @@
             { configName: "Default",
               configReset: true }
           ]
+        }
+      },
+
+      apiHide: {
+        type: Array,
+        value: function() {
+          return [
+            "generateLayers",
+            "numberOfLayers",
+            "svg",
+            "addClipPath",
+            "cloneSVGElem",
+            "domainChanged",
+            "generateRandomID",
+            "isMultiY",
+            "mutedSeries",
+            "hardMute",
+            "selectedDomain",
+            "wwDataSyncCounter"
+          ]
+        }
+      },
+      apiMarkPrivate: {
+        type: Array,
+        value: function() {
+          return [
+            "clipPath",
+            "completeSeriesConfig",
+            "dataExtents",
+            "_domainChanged",
+            "layer",
+            "pxSvgElem",
+            "seriesClipPath"
+          ]
+        }
+      },
+      apliMarkReadOnly: {
+        type: Array,
+        value: function() {
+          return [
+            "drawnTickValues",
+            "extentsData",
+            "mousePosition",
+            "tooltipData",
+            "x",
+            "y"
+          ]
+        }
+      },
+      apiChangeDescription: {
+        type: Array,
+        value: function() {
+          return [{
+            "name": "chartExtents",
+            "desc": 'Developer set chart extents for the chart. The chart will draw to whatever values are specified in the chartExtents. Setting this and not using "dynamic" will prevent the chart from having to parse the data to find the extents and therefore improve performance for initial rendering ``` { "x": [5,50], "y": ["low","medium","high"] }```'
+          }]
         }
       }
     },

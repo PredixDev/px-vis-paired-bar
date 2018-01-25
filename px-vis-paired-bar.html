@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer-element.html" />
+<link rel="import" href="../polymer/lib/utils/async.html">
 
 <link rel="import" href="../px-vis/px-vis-behavior-common.html" />
 <link rel="import" href="../px-vis/px-vis-behavior-d3.html" />
@@ -15,9 +16,74 @@
 <link rel="import" href="../px-vis/px-vis-threshold.html"/>
 <link rel="import" href="../px-vis/px-vis-reference-curve.html"/>
 <link rel="import" href="../px-vis/px-vis-tooltip.html" />
+<link rel="import" href="../px-vis/px-vis-toolbar.html" />
 
 <link rel="import" href="css/px-vis-paired-bar-styles.html" />
 
+<!--
+Creates an interactive paried bar chart
+
+### Usage
+
+    <px-vis-paired-bar
+      width="1200"
+      height="500"
+      scale-padding="0.1"
+      margin='{
+        "left": 130,
+        "right": 130,
+        "top": 10,
+        "bottom": 50
+      }'
+      chart-data="[[chartData]]"
+      series-config="[[seriesConfig]]">
+    </px-vis-paired-bar>
+
+### Styling
+The following custom properties are available for styling:
+
+Custom property | Description
+----------------|-------------
+  `--px-vis-axis-color` | The color for the axis lines, axis ticks, and axis tick labels
+  `--px-vis-axis-title-color` | The color for the axis title
+  |
+  |
+  |
+  `--px-vis-gridlines-color` | The color for the gridlines
+  |
+  |
+  |
+  `--px-vis-threshold-color` | The default color for a threshold
+  |
+  |
+  |
+  `--px-vis-register-series-name` | The color of the data series name
+  `--px-vis-register-data-value` | The color of the data series value
+  `--px-vis-register-box` | The color of the box around the register when a scrollbar is present
+  |
+  |
+  |
+  `--px-vis-series-color-0` | These are the colors used to represent the data series on the charts. Used in numerical order by default. Colors MUST start at 0 and cannot contain gaps between numbers.
+  `--px-vis-series-color-1` |
+  |
+  |
+  |
+  `--px-tooltip-background-color` | The color of the tooltip
+  `--px-tooltip-text-color` | The color of the tooltip text
+  `--px-tooltip-light-background-color` | The color of the light version tooltip
+  `--px-tooltip-light-text-color` | The color of the light version tooltip text
+  `--px-tooltip-light-border-color`| The color of the light version tooltip border
+  |
+  |
+  |
+  `--px-vis-font-family` | The font family for all labels and text
+
+
+@element px-vis-paried bar
+@blurb Creates an interactive paried bar chart
+@homepage index.html
+@demo dev.html
+  -->
 <dom-module id="px-vis-paired-bar">
   <template>
     <style include="px-vis-paired-bar-styles"></style>
@@ -36,7 +102,6 @@
           tooltip-data="[[tooltipData]]"
           chart-data="[[chartData]]"
           complete-series-config="[[completeSeriesConfig]]"
-          muted-series="{{mutedSeries}}"
           type="{{_registerType}}"
           x-axis-type="[[xAxisType]]"
           y-axis-type="[[yAxisType]]"
@@ -57,7 +122,7 @@
             action-config='{{actionConfig}}'
             within-chart
             chart-margin="[[margin]]"
-            config='{"zoom": true, "pan": true, "tooltip": true}'>
+            config='{"tooltip": true}'>
           </px-vis-toolbar>
           <px-vis-svg
             id="svg"
@@ -96,7 +161,6 @@
       x-axis-type="[[xAxisType]]"
       y-axis-type="[[yAxisType]]"
       tooltip-style="light"
-      muted-series="[[mutedSeries]]"
       hide="[[!_computedShowTooltip]]"
       series-keys="[[_seriesKeys]]"
       display-ordinal-value
@@ -269,8 +333,6 @@
       action-config="[[actionConfig]]"
       selection-type="[[selectionType]]"
       extents-action="{{extentsAction}}"
-      muted-series="[[mutedSeries]]"
-      hard-mute="[[hardMute]]"
       is-bar
       prevent-web-worker-synchronization="[[preventWebWorkerSynchronization]]"
       ww-data-sync-counter="[[wwDataSyncCounter]]">
@@ -339,6 +401,45 @@
       PxVisBehaviorChart.tooltipSizing
     ];
 
+    /**
+    *
+    * @polymer
+    * @customElement
+    * @appliesMixin PxVisBehavior.baseSize
+    * @appliesMixin PxVisBehavior.margins
+    * @appliesMixin PxVisBehavior.dataset
+    * @appliesMixin PxVisBehavior.completeSeriesConfig
+    * @appliesMixin PxVisBehavior.tooltipData
+    * @appliesMixin PxVisBehavior.extentsData
+    * @appliesMixin PxVisBehavior.commonMethods
+    * @appliesMixin PxVisBehavior.chartExtents
+    * @appliesMixin PxVisBehavior.dataExtents
+    * @appliesMixin PxVisBehaviorD3.svg
+    * @appliesMixin PxVisBehaviorD3.axes
+    * @appliesMixin PxVisBehaviorScale.scale
+    * @appliesMixin PxVisBehaviorD3.clipPath
+    * @appliesMixin PxVisBehaviorChart.saveImage
+    * @appliesMixin PxVisBehaviorD3.domainUpdate
+    * @appliesMixin PxVisBehaviorChart.subConfiguration
+    * @appliesMixin PxVisBehaviorChart.registerConfigs
+    * @appliesMixin PxVisBehaviorChart.axisConfigs
+    * @appliesMixin PxVisBehaviorChart.registerPositioning
+    * @appliesMixin PxVisBehaviorChart.chartAutoResize
+    * @appliesMixin PxVisBehavior.thresholds
+    * @appliesMixin PxVisBehaviorChart.layers
+    * @appliesMixin PxVisBehavior.dynamicMenuConfig
+    * @appliesMixin PxColorsBehavior.dataVisColorTheming
+    * @appliesMixin PxVisBehavior.axisTypes
+    * @appliesMixin PxVisBehavior.actionConfig
+    * @appliesMixin PxVisBehaviorChart.actionRequest
+    * @appliesMixin PxVisBehaviorChart.showTooltip
+    * @appliesMixin PxVisBehaviorChart.sizeVerticalRegister
+    * @appliesMixin PxVisBehaviorChart.thresholdConfig
+    * @appliesMixin PxVisBehaviorChart.webWorkerSynchronization
+    * @appliesMixin PxVisBehavior.updateStylesOverride
+    * @appliesMixin PxVisBehavior.annotationData
+    * @appliesMixin PxVisBehaviorChart.tooltipSizing
+    */
     class PxVisPairedBar extends Polymer.mixinBehaviors(behaviours, Polymer.Element) {
       static get is() { return 'px-vis-paired-bar'; }
       static get properties() {

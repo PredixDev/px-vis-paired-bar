@@ -1,10 +1,10 @@
-<link rel="import" href="../polymer/polymer-element.html" />
-<link rel="import" href="../polymer/lib/utils/async.html">
+<link rel="import" href="../polymer/polymer-element.html"/>
+<link rel="import" href="../polymer/lib/utils/async.html"/>
 
-<link rel="import" href="../px-vis/px-vis-behavior-common.html" />
-<link rel="import" href="../px-vis/px-vis-behavior-d3.html" />
-<link rel="import" href="../px-vis/px-vis-behavior-chart.html" />
-<link rel="import" href="../px-vis/px-vis-behavior-scale.html" />
+<link rel="import" href="../px-vis/px-vis-behavior-common.html"/>
+<link rel="import" href="../px-vis/px-vis-behavior-d3.html"/>
+<link rel="import" href="../px-vis/px-vis-behavior-chart.html"/>
+<link rel="import" href="../px-vis/px-vis-behavior-scale.html"/>
 <link rel="import" href="../px-vis/px-vis-svg.html"/>
 <link rel="import" href="../px-vis/px-vis-axis.html"/>
 <link rel="import" href="../px-vis/px-vis-gridlines.html"/>
@@ -15,10 +15,10 @@
 <link rel="import" href="../px-vis/px-vis-bar-svg.html"/>
 <link rel="import" href="../px-vis/px-vis-threshold.html"/>
 <link rel="import" href="../px-vis/px-vis-reference-curve.html"/>
-<link rel="import" href="../px-vis/px-vis-tooltip.html" />
-<link rel="import" href="../px-vis/px-vis-toolbar.html" />
+<link rel="import" href="../px-vis/px-vis-tooltip.html"/>
+<link rel="import" href="../px-vis/px-vis-toolbar.html"/>
 
-<link rel="import" href="css/px-vis-paired-bar-styles.html" />
+<link rel="import" href="css/px-vis-paired-bar-styles.html"/>
 
 <!--
 Creates an interactive paried bar chart
@@ -88,7 +88,7 @@ Custom property | Description
   <template>
     <style include="px-vis-paired-bar-styles"></style>
 
-    <div id="wrapper" class$="{{_chartWrapperClass}}" >
+    <div id="wrapper" class$="{{_chartWrapperClass}}">
       <!--chart + register-->
       <div class$="{{_registerWrapperClass}} safari-flex-fix">
         <px-vis-register
@@ -395,7 +395,7 @@ Custom property | Description
       PxVisBehaviorChart.sizeVerticalRegister,
       PxVisBehaviorChart.thresholdConfig,
       PxVisBehaviorChart.webWorkerSynchronization,
-      // Polymer.AppLocalizeBehavior,
+      Polymer.AppLocalizeBehavior,
       PxVisBehavior.updateStylesOverride,
       PxVisBehavior.annotationData,
       PxVisBehaviorChart.tooltipSizing

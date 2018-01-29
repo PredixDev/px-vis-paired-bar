@@ -2,7 +2,7 @@
 
 ## Overview
 
-px-vis-paired-bar is a Predix UI component
+px-vis-paired-bar is a Predix UI component that creates a Paired Bar Chart
 
 ## Usage
 

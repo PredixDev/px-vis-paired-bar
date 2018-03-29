@@ -466,8 +466,8 @@ Custom property | Description
           _rightX: Function,
           _leftX: Function,
           _domainChanged: {
-            type: Boolean,
-            value: null
+            type: Number,
+            value: 0
           },
 
           /**
@@ -533,7 +533,11 @@ Custom property | Description
           * Data to create reference curves. Format matches chartData and requires a referenceConfig with similar props to seriesConfig. Supply data for both left and right in this array
           *
           */
-          referenceData: Array
+          referenceData: Array,
+          paddingOuter: {
+            type: Number,
+            value: 0
+          }
         };
       }
 
@@ -548,6 +552,7 @@ Custom property | Description
           '_createStacks(chartData.*, completeSeriesConfig.*)',
           '_calcTooltipPos(tooltipData.*)',
           '_fixTitleLocation(width, margin.*)',
+          '_createLineGroup(layers, domainChanged)',
 
           '_xAxisConfigChanged(xAxisConfig.*)',
           '_yAxisConfigChanged(yAxisConfig.*)'
@@ -645,7 +650,7 @@ Custom property | Description
       }
 
       _setSecondScale() {
-        if(!this.x || this.domainChanged === null) {
+        if(!this.x || !this.domainChanged) {
           return;
         }
 
@@ -735,6 +740,23 @@ Custom property | Description
 
         this._applyConfigToElement(this.yAxisConfig, this.$.yAxisLeft);
         this._applyConfigToElement(this.yAxisConfig, this.$.yAxisRight);
+      }
+
+      _createLineGroup() {
+        if(!this.layer || this._isD3Empty(this.layer[3]) || !this.domainChanged) {
+          return;
+        }
+
+        var g;
+
+        if(this._isD3Empty(this._lineG)) {
+          g = this.layer[3].append('g')
+            .attr('class', 'lines');
+
+          this.set('_lineG', g);
+        }
+
+        this._lineG.attr('transform', 'translate(0,' + this.y.bandwidth()/2 + ')');
       }
 
     }

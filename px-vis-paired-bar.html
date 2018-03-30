@@ -17,6 +17,8 @@
 <link rel="import" href="../px-vis/px-vis-reference-curve.html"/>
 <link rel="import" href="../px-vis/px-vis-tooltip.html"/>
 <link rel="import" href="../px-vis/px-vis-toolbar.html"/>
+<link rel="import" href="../px-vis/px-vis-central-tooltip-content.html"/>
+<link rel="import" href="../px-tooltip/px-tooltip.html"/>
 
 <link rel="import" href="css/px-vis-paired-bar-styles.html"/>
 
@@ -364,6 +366,22 @@ Custom property | Description
       clip-path="[[seriesClipPath]]">
     </px-vis-reference-curve>
 
+    <px-tooltip
+      id="centralTooltip"
+      smart-orientation
+      ignore-target-events
+      orientation="[[tooltipOrientation]]">
+      <px-vis-central-tooltip-content
+        resources="[[resources]]"
+        use-key-if-missing="[[useKeyIfMissing]]"
+        language="[[language]]"
+        first-date-time-format="[[firstDateTimeFormat]]"
+        second-date-time-format="[[secondDateTimeFormat]]"
+        separator="[[separator]]"
+        timezone="[[timezone]]">
+      </px-vis-central-tooltip-content>
+    </px-tooltip>
+
   </template>
 
   <script>
@@ -402,7 +420,8 @@ Custom property | Description
       Polymer.AppLocalizeBehavior,
       PxVisBehavior.updateStylesOverride,
       PxVisBehavior.annotationData,
-      PxVisBehaviorChart.tooltipSizing
+      PxVisBehaviorChart.tooltipSizing,
+      PxVisBehaviorChart.centralTooltip
     ];
 
     /**
@@ -443,6 +462,7 @@ Custom property | Description
     * @appliesMixin PxVisBehavior.updateStylesOverride
     * @appliesMixin PxVisBehavior.annotationData
     * @appliesMixin PxVisBehaviorChart.tooltipSizing
+    * @appliesMixin PxVisBehaviorChart.centralTooltip
     */
     class PxVisPairedBar extends Polymer.mixinBehaviors(behaviours, Polymer.Element) {
       static get is() { return 'px-vis-paired-bar'; }

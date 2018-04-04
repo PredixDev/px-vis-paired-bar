@@ -74,12 +74,14 @@ suite('Basic Column with include all series', () => {
       left: {
         color: "rgb(90,191,248)",
         name: "left",
+        type: 'bar',
         y: "cat",
         x: "left"
       },
       right: {
         color: "rgb(226,141,23)",
         name: "right",
+        type: 'bar',
         y: "cat",
         x: "right"
       },

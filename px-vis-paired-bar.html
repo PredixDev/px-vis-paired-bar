@@ -661,6 +661,7 @@ Custom property | Description
         }
 
         keys.forEach((key,i) => {
+          csc[key]['type'] = 'bar';
           csc[key]['name'] = csc[key]['name'] ? csc[key]['name'] : key;
           csc[key]['color'] = csc[key]['color'] ? csc[key]['color'] : this.seriesColorList[i];
         });

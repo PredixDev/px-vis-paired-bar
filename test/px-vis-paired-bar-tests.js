@@ -87,7 +87,17 @@ suite('Basic Column with include all series', () => {
         x: "right"
       },
     };
-    assert.deepEqual(barChart.completeSeriesConfig, csc);
+    assert.equal(barChart.completeSeriesConfig.left.color.replace(/ /g,''), "rgb(90,191,248)");
+    assert.equal(barChart.completeSeriesConfig.left.name, "left");
+    assert.equal(barChart.completeSeriesConfig.left.type, "bar");
+    assert.equal(barChart.completeSeriesConfig.left.x, "left");
+    assert.equal(barChart.completeSeriesConfig.left.y, "cat");
+
+    assert.equal(barChart.completeSeriesConfig.right.color.replace(/ /g,''), "rgb(226,141,23)");
+    assert.equal(barChart.completeSeriesConfig.right.name, "right");
+    assert.equal(barChart.completeSeriesConfig.right.type, "bar");
+    assert.equal(barChart.completeSeriesConfig.right.x, "right");
+    assert.equal(barChart.completeSeriesConfig.right.y, "cat");
   });
 
   test('_leftData', () => {

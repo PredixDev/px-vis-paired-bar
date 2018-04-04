@@ -61,6 +61,7 @@ suite('Basic Column with include all series', () => {
     barChart.addEventListener('px-data-vis-colors-applied', colorAppliedCB);
 
     barChart.setProperties({
+      preventResize: true,
       width: width,
       height: height,
       margin: margin,

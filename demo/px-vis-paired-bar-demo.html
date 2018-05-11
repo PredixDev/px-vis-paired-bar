@@ -51,7 +51,7 @@ limitations under the License.
       <px-demo-props slot="px-demo-props" props="{{props}}" config="[[chosenConfig]]"></px-demo-props>
 
       <iron-ajax
-        url="/demo/data.json"
+        url="[[importPath]]]data.json"
         handle-as="json"
         last-response="{{props.chartData.value}}"
         auto>

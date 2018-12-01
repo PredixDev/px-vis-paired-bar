@@ -1,6 +1,6 @@
 {
   "name": "px-vis-paired-bar",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": [
     "px-vis-paired-bar.html"
   ],
